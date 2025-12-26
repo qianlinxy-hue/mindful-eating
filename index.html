@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>正念一口 | Mindful Bite</title>
+    <style>
+        :root {
+            --fresh-pink: #FFC3E6;
+            --fresh-blue: #B8E4FF;
+            --fresh-yellow: #FFF5C2;
+            --fresh-mint: #C1E7D3;
+            --fresh-purple: #E0C3FC;
+            --text-dark: #5A5A5A;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-dark);
+            background: linear-gradient(45deg, var(--fresh-pink), var(--fresh-yellow), var(--fresh-blue), var(--fresh-purple));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            width: 85%;
+            max-width: 380px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 35px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 0 0 2px var(--glass-border);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-weight: 600;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .step-indicator {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--fresh-purple);
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        .content-box {
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .emoji {
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+        }
+
+        p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--fresh-blue);
+            margin: 10px 0;
+            text-shadow: 2px 2px 10px rgba(184, 228, 255, 0.8);
+            display: none;
+        }
+
+        .btn {
+            margin-top: 35px;
+            background: linear-gradient(135deg, var(--fresh-blue), var(--fresh-purple));
+            color: white;
+            border: none;
+            padding: 16px 45px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 10px 20px -5px rgba(184, 228, 255, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 25px -5px rgba(184, 228, 255, 0.7);
+        }
+        
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled {
+            background: #E0E0E0;
+            color: #A0A0A0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .progress-container {
+            width: 80%;
+            height: 6px;
+            background-color: rgba(255,255,255,0.5);
+            border-radius: 10px;
+            margin-top: 30px;
+            overflow: hidden;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, var(--fresh-mint), var(--fresh-blue));
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 10px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="app"></div>
+    </div>
+
+    <script>
+        // 音效数据
+        const popSoundBase64 = "data:audio/mpeg;base64,//NkxAAACCABAAAD//NkxAgACCABAAAD//NkxAwACCABAAAD//NkxBAACCABAAAD//NkxBQACCABAAAD//NkxBgACCABAAAD//NkxBwACCABAAAD//NkxCAACCABAAAD//NkxCQACCABAAAD//NkxCgACCABAAAD//NkxCwACCABAAAD//NkxDAACCABAAAD//NkxDQACCABAAAD//NkxDgACCABAAAD//NkxDwACCABAAAD//NkxEAACCABAAAD//NkxEQACCABAAAD//NkxEgACCABAAAD//NkxEwACCABAAAD//NkxFAACCABAAAD//NkxFQACCABAAAD//NkxGAACCABAAAD/6jEAAgQAsAAA//zZMQcAAggAQAAA//zZMQgAAggAQAAA//zZMQkAAggAQAAA//zZMQoAAggAQAAA//zZMQsAAggAQAAA//zZMQwAAggAQAAA//zZMQ0AAggAQAAA//zZMQ4AAggAQAAA//zZMQ8AAggAQAAA//zZMQAAAgAQAAD//NkxAQACCABAAAD//NkxAgACCABAAAD//NkxAwACCABAAAD//NkxBAACCABAAAD//NkxBQACCABAAAD//NkxBgACCABAAAD//NkxBwACCABAAAD//NkxCAACCABAAAD//NkxCQACCABAAAD//NkxCgACCABAAAD//NkxCwACCABAAAD//NkxDAACCABAAAD//NkxDQACCABAAAD//NkxDgACCABAAAD//NkxDwACCABAAAD//NkxEAACCABAAAD//NkxEQACCABAAAD//NkxEgACCABAAAD//NkxEwACCABAAAD//NkxFAACCABAAAD//NkxFQACCABAAAD//NkxFgACCABAAAD//NkxGAACCABAAAD/6jEAAgQAsAAA//zZMQcAAggAQAAA//zZMQgAAggAQAAA//zZMQkAAggAQAAA//zZMQoAAggAQAAA//zZMQsAAggAQAAA//zZMQwAAggAQAAA//zZMQ0AAggAQAAA//zZMQ4AAggAQAAA//zZMQ8AAggAQAAA//zZMQAAAgAQAAD//NkxAQACCABAAAD//NkxAgACCABAAAD//NkxAwACCABAAAD//NkxBAACCABAAAD//NkxBQACCABAAAD//NkxBgACCABAAAD//NkxBwACCABAAAD//NkxCAACCABAAAD//NkxCQACCABAAAD//NkxCgACCABAAAD//NkxCwACCABAAAD//NkxDAACCABAAAD//NkxDQACCABAAAD//NkxDgACCABAAAD//NkxDwACCABAAAD//NkxEAACCABAAAD//NkxEQACCABAAAD//NkxEgACCABAAAD//NkxEwACCABAAAD//NkxFAACCABAAAD//NkxFQACCABAAAD//NkxFgACCABAAAD//NkxFwACCABAAAD//NkxGAACCABAAAD/6jEAAgQAsAAA//zZMQcAAggAQAAA//zZMQgAAggAQAAA//zZMQkAAggAQAAA//zZMQoAAggAQAAA//zZMQsAAggAQAAA//zZMQwAAggAQAAA//zZMQ0AAggAQAAA//zZMQ4AAggAQAAA//zZMQ8AAggAQAAA";
+        const audio = new Audio(popSoundBase64);
+        audio.volume = 0.4;
+
+        function playClickSound() {
+            audio.currentTime = 0; 
+            const playPromise = audio.play();
+            if (playPromise !== undefined) playPromise.catch(() => {});
+        }
+
+        const steps = [
+            { step: "Ready", emoji: "🧘‍♀️", title: "准备好了吗？", text: "嘿，别急着吃。<br>让我们花3分钟，给大脑和胃一点连接的时间。<br>准备好你面前的那一口食物。", btn: "开始正念之旅" },
+            { step: "Step 1: 观察", emoji: "✨", title: "用眼睛“吃”第一口", text: "仔细看看它。它的颜色是怎样的？<br>它的纹理是粗糙还是光滑的？<br>想象你正在给它拍一张特写照片。", btn: "观察好了" },
+            { step: "Step 2: 嗅闻", emoji: "🌸", title: "唤醒嗅觉", text: "凑近闻一闻。<br>香气是浓郁的还是清淡的？<br>这股味道让你想起了什么？", btn: "闻到了" },
+            { step: "Step 3: 入口", emoji: "👄", title: "唇齿间的触碰", text: "轻轻放进嘴里，<b>停住！不要嚼。</b><br>用舌头感受它的温度、重量。<br>是软糯，酥脆，还是丝滑？", btn: "感受到了" },
+            { 
+                step: "Step 4: 咀嚼", 
+                emoji: "⏳", 
+                title: "慢动作咀嚼", 
+                text: "现在，开始非常缓慢地咀嚼。<br>感受食物质地和味道在口中的变化。<br>请坚持咀嚼到倒计时结束。", 
+                btn: "准备开始咀嚼", 
+                hasTimer: true, 
+                timerDuration: 20 
+            },
+            { step: "Step 5: 吞咽", emoji: "😌", title: "感恩与满足", text: "感受食物顺着喉咙滑下的过程。<br>感受胃部接收到能量的微小满足感。<br>谢谢这一口食物。", btn: "完成这一口" },
+            { step: "Done", emoji: "🎉", title: "太棒了！", text: "你刚刚进行了一次完美的正念饮食体验。<br>是不是感觉味道更丰富了？<br>保持这份觉知，享受下一口吧。", btn: "再体验一次" }
+        ];
+
+        let currentStep = 0;
+        let timerInterval = null;
+        let isStepTimerDone = false; // 新增：标记当前步骤的计时器是否已完成
+        const app = document.getElementById('app');
+
+        function render() {
+            const data = steps[currentStep];
+            const progress = (currentStep / (steps.length - 1)) * 100;
+            const isLastStep = currentStep === steps.length - 1;
+            
+            app.innerHTML = `
+                <div class="content-box fade-in">
+                    ${currentStep > 0 && !isLastStep ? `<div class="step-indicator">${data.step}</div>` : ''}
+                    <h1>${data.title}</h1>
+                    <div class="emoji">${data.emoji}</div>
+                    ${data.hasTimer ? `<div class="timer-display" id="timerNum">${data.timerDuration}</div>` : ''}
+                    <p>${data.text}</p>
+                    <button class="btn" id="actionBtn">${data.btn}</button>
+                    ${currentStep > 0 ? `<div class="progress-container"><div class="progress-bar" style="width: ${progress}%"></div></div>` : ''}
+                </div>
+            `;
+
+            const btnElement = document.getElementById('actionBtn');
+            
+            btnElement.onclick = () => {
+                playClickSound();
+
+                // 核心修复逻辑：
+                // 如果需要计时，且【还没有完成计时】，则开始计时
+                if (data.hasTimer && !isStepTimerDone) {
+                    startTimer(data.timerDuration, btnElement);
+                } else {
+                    // 如果不需要计时，或者【计时已经完成了】，则跳转下一步
+                    nextStep();
+                }
+            };
+        }
+
+        function startTimer(duration, btnElement) {
+            let timeLeft = duration;
+            const timerDisplay = document.getElementById('timerNum');
+            
+            timerDisplay.style.display = "block";
+            btnElement.disabled = true;
+            btnElement.innerText = `请保持咀嚼...`;
+
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    timerDisplay.style.display = "none";
+                    
+                    // 计时结束，标记完成状态
+                    isStepTimerDone = true; 
+                    
+                    btnElement.disabled = false;
+                    btnElement.innerText = "咀嚼完成（点击继续）"; // 明确提示可以继续了
+                    btnElement.style.background = "linear-gradient(135deg, #FFC3E6, #E0C3FC)"; // 稍微变色提示状态变更
+                    playClickSound();
+                }
+            }, 1000);
+        }
+
+        function nextStep() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = null;
+            
+            // 重置计时器完成状态，供下一个步骤（如果有）使用
+            isStepTimerDone = false; 
+            
+            currentStep++;
+            if (currentStep >= steps.length) {
+                currentStep = 0;
+            }
+            render();
+        }
+
+        render();
+        
+        document.addEventListener('click', function initAudio() {
+            audio.load();
+            document.removeEventListener('click', initAudio);
+        }, {once: true});
+    </script>
+</body>
+</html>
